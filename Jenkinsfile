@@ -1,3 +1,4 @@
+def imageName = 'paulappz/quote-service'
 
 node('workers'){
     stage('Checkout'){
