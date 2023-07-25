@@ -48,22 +48,6 @@ node('workers'){
     
         if (env.BRANCH_NAME == 'develop') {
                 def scannedImage = "${registry}/${imageName}:develop"
-            }
-         if (env.BRANCH_NAME == 'preprod') {
-                def scannedImage = "${registry}/${imageName}:preprod"
-            }
-         if (env.BRANCH_NAME == 'master') {
-                sh "docker push ${registry}/${imageName}:master"
-            }
-
-            writeFile file: 'images', text: scannedImage
-            anchore name: 'images'
-        }
-    
-    stage('Analyze'){
-    
-        if (env.BRANCH_NAME == 'develop') {
-                def scannedImage = "${registry}/${imageName}:develop"
                 writeFile file: 'images', text: scannedImage
             }
          if (env.BRANCH_NAME == 'preprod') {
