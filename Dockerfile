@@ -1,6 +1,8 @@
 # Select official python 3 runtime
 FROM python:3
 
+LABEL MAINTAINER paulappz
+
 # Creates a directory in /usr/src/app
 RUN mkdir -p /usr/src/app
 
