@@ -23,12 +23,9 @@ try {
             }
         if (env.BRANCH_NAME == 'preprod') {
                 sh "docker build --build-arg ENVIRONMENT=staging --tag ${imageName}:preprod ."
-            
             }
-
         if (env.BRANCH_NAME == 'master') {
                 sh "docker build --build-arg ENVIRONMENT=production --tag ${imageName}:master ."
-                                      
             }  
     }
     
