@@ -19,7 +19,7 @@ try {
     stage('Build'){
        sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}/${imageName}"
         if (env.BRANCH_NAME == 'develop') {
-                sh "docker build --build-arg ENVIRONMENT=sandbox --tag ${imageName}:develop ."
+                sh "docker build --build-arg ENVIRONMENT=sandbox --tag ${imageName} ."
             }
         if (env.BRANCH_NAME == 'preprod') {
                 sh "docker build --build-arg ENVIRONMENT=staging --tag ${imageName}:preprod ."
