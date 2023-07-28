@@ -32,15 +32,15 @@ try {
         
     stage('Push'){
          if (env.BRANCH_NAME == 'develop') {
-                sh " docker tag ${imageName}:develop ${registry}/${imageName}:develop"
+                sh " docker tag ${imageName}:latest ${registry}/${imageName}:develop"
                 sh "docker push ${registry}/${imageName}:develop"
             }
          if (env.BRANCH_NAME == 'preprod') {
-                sh " docker tag ${imageName}:preprod ${registry}/${imageName}:preprod"
+                sh " docker tag ${imageName}:develop ${registry}/${imageName}:preprod"
                 sh "docker push ${registry}/${imageName}:preprod"
             }
          if (env.BRANCH_NAME == 'master') {
-                sh " docker tag ${imageName}:master ${registry}/${imageName}:master" 
+                sh " docker tag ${imageName}:preprod ${registry}/${imageName}:master" 
                 sh "docker push ${registry}/${imageName}:master"
                 
             }
