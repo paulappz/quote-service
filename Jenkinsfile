@@ -55,7 +55,7 @@ try {
                 scannedImage = "${registry}/${imageName}:preprod"
             }
          if (env.BRANCH_NAME == 'master') {
-                sh "docker push ${registry}/${imageName}:master"
+                scannedImage = "${registry}/${imageName}:master"
             }
              writeFile file: 'images', text: scannedImage
              anchore name: 'images'
