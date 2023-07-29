@@ -1,6 +1,7 @@
 def imageName = 'paulappz/quote-service'
 def registry = '570942461061.dkr.ecr.eu-west-2.amazonaws.com' 
 def region = 'eu-west-2'
+def accounts = [master:'production', preprod:'staging', develop:'sandbox']
 
 node('workers'){
 try {
@@ -17,51 +18,29 @@ try {
     }
     
     stage('Build'){
-       sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}/${imageName}"
-        if (env.BRANCH_NAME == 'develop') {
-                sh "docker build --build-arg ENVIRONMENT=sandbox --tag ${imageName} ."
+            sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}/${imageName}"
+             if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'preprod' || env.BRANCH_NAME == 'master'  ) {
+            sh "docker build --build-arg ENVIRONMENT=${accounts[env.BRANCH_NAME]} --tag ${imageName} ."
             }
-        if (env.BRANCH_NAME == 'preprod') {
-                sh "docker build --build-arg ENVIRONMENT=staging --tag ${imageName}:preprod ."
-            }
-        if (env.BRANCH_NAME == 'master') {
-                sh "docker build --build-arg ENVIRONMENT=production --tag ${imageName}:master ."
-            }  
     }
     
         
     stage('Push'){
-         if (env.BRANCH_NAME == 'develop') {
-                sh " docker tag ${imageName}:latest ${registry}/${imageName}:develop"
-                sh "docker push ${registry}/${imageName}:develop"
-            }
-         if (env.BRANCH_NAME == 'preprod') {
-                sh " docker tag ${imageName}:develop ${registry}/${imageName}:preprod"
-                sh "docker push ${registry}/${imageName}:preprod"
-            }
-         if (env.BRANCH_NAME == 'master') {
-                sh " docker tag ${imageName}:preprod ${registry}/${imageName}:master" 
-                sh "docker push ${registry}/${imageName}:master"
-                
-            }
+     if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'preprod' || env.BRANCH_NAME == 'master'  ) {
+                sh " docker tag ${imageName}:latest ${registry}/${imageName}:env.BRANCH_NAME"
+                sh "docker push ${registry}/${imageName}:env.BRANCH_NAME"
+                }
     }
     
     stage('Analyze'){
-     def scannedImage = ''
-        if (env.BRANCH_NAME == 'develop') {
-                scannedImage = "${registry}/${imageName}:develop"
-            }
-         if (env.BRANCH_NAME == 'preprod') {
-                scannedImage = "${registry}/${imageName}:preprod"
-            }
-         if (env.BRANCH_NAME == 'master') {
-                scannedImage = "${registry}/${imageName}:master"
-            }
-             writeFile file: 'images', text: scannedImage
+     if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'preprod' || env.BRANCH_NAME == 'master'  ) {
+        def scannedImage = "${registry}/${imageName}:env.BRANCH_NAME"
+         writeFile file: 'images', text: scannedImage
              anchore name: 'images'
+     }
         }
     
-        stage('Deploy'){
+    stage('Deploy'){
         if(env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'preprod'){
                 build job: "quote-microservice-deployments/${env.BRANCH_NAME}"
         }
@@ -72,7 +51,7 @@ try {
                 build job: "quote-microservice-deployments/master"
             }
         }
-}
+    }
         catch(e){
         currentBuild.result = 'FAILED'
         throw e
