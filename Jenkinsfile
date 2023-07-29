@@ -18,22 +18,35 @@ try {
     }
     
     stage('Build'){
-                    docker.build(imageName)
-            
-        //,
-    
-        //    sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}/${imageName}"
-        //    if (${env.BUILD_NUMBER} == 'develop' || ${env.BUILD_NUMBER} == 'preprod' || env.BRANCH_NAME == 'master'  ) {
-        //    sh "docker build --build-arg ENVIRONMENT=${accounts[env.BRANCH_NAME]} --tag ${imageName} ."
-        //     }
+     //     sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}/${imageName}"
+            docker.build(imageName)
     }
     
         
     stage('Push'){
-     if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'preprod' || env.BRANCH_NAME == 'master'  ) {
-                sh " docker tag ${imageName}:latest ${registry}/${imageName}:env.BRANCH_NAME"
-                sh "docker push ${registry}/${imageName}:env.BRANCH_NAME"
-                }
+            sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}/${imageName}"
+            docker.withRegistry("https://${registry}") {
+                docker.image(imageName).push(commitID())
+
+                        if (env.BRANCH_NAME == 'develop') {
+                            docker.image(imageName).push('develop')
+                        }
+
+                        if (env.BRANCH_NAME == 'preprod') {
+                            docker.image(imageName).push('preprod')
+                        }
+
+                        if (env.BRANCH_NAME == 'master') {
+                            docker.image(imageName).push('latest')
+                        }
+                    }
+    
+    
+    
+    // if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'preprod' || env.BRANCH_NAME == 'master'  ) {
+    //            sh " docker tag ${imageName}:latest ${registry}/${imageName}:${env.BRANCH_NAME}"
+    //            sh "docker push ${registry}/${imageName}:${env.BRANCH_NAME}"
+    //            }
     }
     
     stage('Analyze'){
