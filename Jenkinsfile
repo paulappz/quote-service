@@ -25,23 +25,29 @@ try {
     stage('Push'){
             sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}/${imageName}"
             docker.withRegistry("https://${registry}") {
-                docker.image(imageName).push(commitID())
-
                         if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'preprod' ) {
                             docker.image(imageName).push("${env.BRANCH_NAME}")
                         }
                         if (env.BRANCH_NAME == 'master') {
                             docker.image(imageName).push('latest')
                         }
+                     //   docker.image(imageName).push(commitID())
                     }
     //            sh " docker tag ${imageName}:latest ${registry}/${imageName}:${env.BRANCH_NAME}"
     //            sh "docker push ${registry}/${imageName}:${env.BRANCH_NAME}"
     }
     
     stage('Analyze'){
-        def scannedImage = "${registry}/${imageName}:${commitID()}"
-            writeFile file: 'images', text: scannedImage
-            anchore name: 'images'
+        def scannedImage = ""
+        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'preprod' ) {
+            scannedImage = "${registry}/${imageName}:${env.BRANCH_NAME}"
+        }
+        if (env.BRANCH_NAME == 'master') {
+            docker.image(imageName).push('latest')
+        }
+       
+        writeFile file: 'images', text: scannedImage
+        anchore name: 'images'
     }
     
     stage('Deploy'){
