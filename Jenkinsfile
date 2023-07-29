@@ -18,15 +18,14 @@ try {
     }
     
     stage('Build'){
-            'Docker Image': {
                     docker.build(imageName)
-                }
-                //,
+            
+        //,
     
         //    sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}/${imageName}"
-         //    if (${env.BUILD_NUMBER} == 'develop' || ${env.BUILD_NUMBER} == 'preprod' || env.BRANCH_NAME == 'master'  ) {
+        //    if (${env.BUILD_NUMBER} == 'develop' || ${env.BUILD_NUMBER} == 'preprod' || env.BRANCH_NAME == 'master'  ) {
         //    sh "docker build --build-arg ENVIRONMENT=${accounts[env.BRANCH_NAME]} --tag ${imageName} ."
-       //     }
+        //     }
     }
     
         
