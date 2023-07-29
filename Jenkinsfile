@@ -31,7 +31,7 @@ try {
                         if (env.BRANCH_NAME == 'master') {
                             docker.image(imageName).push('latest')
                         }
-                        docker.image(imageName).push(commitID())
+                     //   docker.image(imageName).push(commitID())
                     }
     //            sh " docker tag ${imageName}:latest ${registry}/${imageName}:${env.BRANCH_NAME}"
     //            sh "docker push ${registry}/${imageName}:${env.BRANCH_NAME}"
